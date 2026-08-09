@@ -30,6 +30,7 @@ The guide reads your current save state and tries to understand what you have al
 - Handles special progression cases where normal trainer/event logic is not enough.
 <img width="1026" height="800" alt="image" src="https://github.com/user-attachments/assets/103f2c38-7e13-4ec6-8712-5050961a4426" />
 
+
 **Check out my other mods:**<br>
 * [Autofire A/B + Directional Keys Mod](https://github.com/ZyranCZ/autofire)<br>
 * [Steel and/or Fairy and/or Typing Charts](https://github.com/ZyranCZ/Steel-and-or-Fairy-and-or-Typing-Charts)<br>
@@ -41,6 +42,9 @@ The guide reads your current save state and tries to understand what you have al
 * [Trainers Let You Choose Lead Pokemon](https://github.com/ZyranCZ/Trainers-Let-You-Choose-Lead-Pokemon)
 * [Evolve in Battle](https://github.com/ZyranCZ/Evolve-in-Battle)
 * [HELP Story Guide](https://github.com/ZyranCZ/HELP-Story-Guide/)
+* [Professor Oak's Pokémon DV/Stat Appraisal](https://github.com/ZyranCZ/Professor-Oak-DV-STAT-Evaluation)
+
+
 
 
 ## HELP pages
