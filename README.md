@@ -3,6 +3,7 @@
 # HELP - Story Guide
 
 **HELP - Story Guide is primarily intended for players who have never played Generation I Pokémon games and do not want to constantly Google what they are supposed to do next.**
+
 <img width="1548" height="1410" alt="image" src="https://github.com/user-attachments/assets/51e28bb8-5565-4c4b-8776-8d8720bf04cd" />
 
 Pokémon Red/Blue were created in an era when games often gave the player very little direction. Sometimes the intended next step is obvious, but sometimes the game simply leaves you wandering around until you discover the solution — occasionally almost by accident.
@@ -10,6 +11,7 @@ Pokémon Red/Blue were created in an era when games often gave the player very l
 With this mod, you can simply open **HELP** and ask the game itself what you can or should do next.
 
 The guide reads your current save state and tries to understand what you have already completed, what is currently available, and which progression paths are still open.
+
 <img width="1026" height="800" alt="image" src="https://github.com/user-attachments/assets/5130bdb2-6c2e-4c2b-a094-28d61bb0b6ed" />
 
 ## Features
@@ -27,6 +29,19 @@ The guide reads your current save state and tries to understand what you have al
 - Supports **HM Anywhere**.
 - Handles special progression cases where normal trainer/event logic is not enough.
 <img width="1026" height="800" alt="image" src="https://github.com/user-attachments/assets/103f2c38-7e13-4ec6-8712-5050961a4426" />
+
+**Check out my other mods:**<br>
+* [Autofire A/B + Directional Keys Mod](https://github.com/ZyranCZ/autofire)<br>
+* [Steel and/or Fairy and/or Typing Charts](https://github.com/ZyranCZ/Steel-and-or-Fairy-and-or-Typing-Charts)<br>
+* [Move Category (PHYS/SPEC) Preview](https://github.com/ZyranCZ/Move-Category-Preview)<br>
+* [Special Stat Split
+](https://github.com/ZyranCZ/Special-Stat-Split/)<br>
+* [Enemy HP Visible](https://github.com/ZyranCZ/Enemy-HP)
+* [Can Always Escape](https://github.com/ZyranCZ/Can-Always-Escape)
+* [Trainers Let You Choose Lead Pokemon](https://github.com/ZyranCZ/Trainers-Let-You-Choose-Lead-Pokemon)
+* [Evolve in Battle](https://github.com/ZyranCZ/Evolve-in-Battle)
+* [HELP Story Guide](https://github.com/ZyranCZ/HELP-Story-Guide/)
+
 
 ## HELP pages
 
