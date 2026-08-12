@@ -1,15 +1,18 @@
 {
   "id": "help_story_guide",
   "name": "HELP - Story Guide",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "github": "ZyranCZ/HELP-Story-Guide",
   "entry": "main.lua",
   "api": 2,
   "priority": 0,
   "category": "OTHER",
-  "game_version": "0.1.75",
-  "description": "Context-aware Red/Blue story guidance with multi-objective HELP pages, existing-save trainer reconstruction, purpose-aware PC prompts, HM Anywhere compatibility, route trainer progress, and optional SELECT HELP.",
+  "description": "Context-aware Gen 1 and Pokémon Gold story guidance with detailed map-by-map objectives, safe progress reconstruction, HM-aware routing, route trainer progress, and optional SELECT HELP.",
   "experimental": false,
   "profile": "content",
-  "permissions": []
+  "permissions": [],
+  "games": [
+    "gen1",
+    "gold"
+  ]
 }
