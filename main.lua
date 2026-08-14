@@ -1,6 +1,7 @@
 -- HELP - Story Guide
--- v2.0.0
--- Target: Gen1Recomp mod API 2 / Gen 1 (Red/Blue/Yellow) + Gold; no engine-version pin
+-- v2.0.3
+-- Target: Gen1Recomp v0.1.86 mod API 2 / Gen 1 (Red/Blue/Yellow) + Gold;
+-- no engine-version pin
 --
 -- Design goals:
 --   * derive progress from the authoritative game save; never maintain a parallel helpStage
@@ -2173,10 +2174,48 @@ return function(mod)
     WATERFALL = 127, FLASH = 148, WHIRLPOOL = 250,
   }
 
-  local function isGoldSave(save)
-    if type(save) ~= "table" then return false end
-    if tonumber(save.generation) == 2 then return true end
-    return type(save.version) == "string" and save.version:lower() == "gold"
+  local function generationFromSave(save)
+    if type(save) ~= "table" then return nil end
+    if tonumber(save.generation) == 2 then return 2 end
+    if type(save.version) == "string" and save.version:lower() == "gold" then
+      return 2
+    end
+    if tonumber(save.generation) == 1 then return 1 end
+    return nil
+  end
+
+  -- The live Game object is the authority for generation selection.  Save
+  -- metadata is deliberately only a fallback: old/imported/in-progress Gold
+  -- saves can temporarily lack version/generation, and defaulting such a live
+  -- Gen 2 session to Gen 1 is exactly how guides from the two games leaked
+  -- into each other.
+  --
+  -- Gen 1 exposes `overworld`; Game2 exposes its class methods (`startWorld`,
+  -- `currentLandmark`) even before `world` is created.  The gen2 data markers
+  -- are a final runtime capability check after Game2's generated data load.
+  local function generationFromGame(game)
+    if type(game) ~= "table" then return nil end
+
+    if game.overworld ~= nil then return 1 end
+    if type(game.startWorld) == "function"
+        or type(game.currentLandmark) == "function"
+        or game.world ~= nil then
+      return 2
+    end
+
+    local data = game.data
+    if type(data) == "table"
+        and (data.gen2Text ~= nil
+          or data.gen2InitialEvents ~= nil
+          or data.gen2EventTables ~= nil) then
+      return 2
+    end
+
+    return generationFromSave(game.save)
+  end
+
+  local function generationForContext(save, game)
+    return generationFromGame(game) or generationFromSave(save) or 1
   end
 
   local function goldSerializedEvent(save, id)
@@ -2517,17 +2556,21 @@ return function(mod)
     local kantoMapTokens = {
       "VERMILION", "SAFFRON", "CELADON", "FUCHSIA", "LAVENDER", "CERULEAN",
       "POWER_PLANT", "ROCK_TUNNEL", "PEWTER", "PALLET", "CINNABAR",
-      "SEAFOAM", "VIRIDIAN", "ROUTE_1", "ROUTE_2", "ROUTE_3", "ROUTE_4",
-      "ROUTE_5", "ROUTE_6", "ROUTE_7", "ROUTE_8", "ROUTE_9", "ROUTE_10",
-      "ROUTE_11", "ROUTE_12", "ROUTE_13", "ROUTE_14", "ROUTE_15", "ROUTE_16",
-      "ROUTE_17", "ROUTE_18", "ROUTE_19", "ROUTE_20", "ROUTE_21", "ROUTE_22",
-      "ROUTE_24", "ROUTE_25", "ROUTE_28", "SILVER_CAVE",
+      "SEAFOAM", "VIRIDIAN", "SILVER_CAVE",
     }
     s.access.kantoReached = s.badges.kantoCount > 0 or st.fastShipArrived
     if type(map) == "string" then
       for _, token in ipairs(kantoMapTokens) do
         if map:find(token, 1, true) then s.access.kantoReached = true break end
       end
+      -- Route ids must be parsed numerically.  A substring search makes
+      -- Johto's ROUTE_29 match Kanto's ROUTE_2 (and ROUTE_30..39 match
+      -- ROUTE_3, ROUTE_40..46 match ROUTE_4), which prematurely exposes the
+      -- entire Kanto Gym journal during the Johto story.
+      local route = tonumber(map:match("^ROUTE_(%d+)"))
+      local kantoRoute = route and ((route >= 1 and route <= 22)
+        or route == 24 or route == 25 or route == 28)
+      if kantoRoute then s.access.kantoReached = true end
     end
     s.access.mtSilver = st.openedMtSilver
     return s
@@ -4471,7 +4514,9 @@ return function(mod)
   ---------------------------------------------------------------------------
 
   local function normalizeForGame(save, game)
-    if isGoldSave(save) then return normalizeGold(save, game) end
+    if generationForContext(save, game) == 2 then
+      return normalizeGold(save, game)
+    end
     return normalizeGen1(save)
   end
 
@@ -4479,14 +4524,26 @@ return function(mod)
     return normalizeForGame(save, liveGame)
   end
 
-  local function resolve(save)
-    if isGoldSave(save) then return resolveGold(save, liveGame) end
+  local function resolveForGame(save, game)
+    if generationForContext(save, game) == 2 then
+      return resolveGold(save, game)
+    end
     return resolveGen1(save)
   end
 
-  local function resolveAll(save)
-    if isGoldSave(save) then return resolveAllGold(save, liveGame) end
+  local function resolve(save)
+    return resolveForGame(save, liveGame)
+  end
+
+  local function resolveAllForGame(save, game)
+    if generationForContext(save, game) == 2 then
+      return resolveAllGold(save, game)
+    end
     return resolveAllGen1(save)
+  end
+
+  local function resolveAll(save)
+    return resolveAllForGame(save, liveGame)
   end
 
   -- Read-only test/debug snapshot for one-shot live triage.  This deliberately
@@ -4497,8 +4554,9 @@ return function(mod)
     game = game or liveGame
     save = save or (game and game.save) or {}
 
+    local generation = generationForContext(save, game)
     local pages, normalized
-    if isGoldSave(save) then
+    if generation == 2 then
       pages, normalized = resolveAllGold(save, game)
     else
       pages, normalized = resolveAllGen1(save)
@@ -4518,7 +4576,6 @@ return function(mod)
       }
     end
 
-    local generation = isGoldSave(save) and 2 or 1
     local badgeCounts
     if generation == 2 then
       local b = normalized.badges or {}
@@ -4894,8 +4951,10 @@ return function(mod)
   mod.exports.normalizeForGame = normalizeForGame
   mod.exports.normalizeGold = normalizeGold
   mod.exports.resolve = resolve
+  mod.exports.resolveForGame = resolveForGame
   mod.exports.resolveGold = resolveGold
   mod.exports.resolveAll = resolveAll
+  mod.exports.resolveAllForGame = resolveAllForGame
   mod.exports.resolveAllGold = resolveAllGold
   mod.exports.diagnostics = diagnostics
   mod.exports.startLiveAudit = startLiveAudit
@@ -4964,9 +5023,9 @@ return function(mod)
 
   mod.content.screens:register("HelpStoryGuide", {
     new = function(game)
-      local results = resolveAll(game.save)
+      local results = resolveAllForGame(game.save, game)
       if type(results) ~= "table" or #results == 0 then
-        local fallback = resolve(game.save)
+        local fallback = resolveForGame(game.save, game)
         fallback.pageRole = fallback.kind == "CONTEXT" and "CONTEXT" or "PRIMARY"
         results = { fallback }
       end
@@ -5076,6 +5135,9 @@ return function(mod)
     return mod.ui.insertBefore(out, "OPTION", {
       id = "HELP",
       label = "HELP",
+      -- Gold's START menu renders descriptor rows when MENU ACCOUNT is on;
+      -- Gen 1 safely ignores this shared descriptor field.
+      desc = { "Story and", "route guide" },
       onSelect = function()
         openHelp(game, false)
       end,
